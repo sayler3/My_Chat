@@ -9,14 +9,10 @@ const socket = socketIOClient(ENDPOINT, {
 const ChatWindow = () => {
 	const [message, setmessage] = useState(null);
 	const [newMessage, setnewMessage] = useState([]);
+	const [handle, sethandle] = useState(null);
 
 	const onChange = (e) => {
 		setmessage({ ...message, [e.target.name]: e.target.value });
-
-		message &&
-			socket.on("typing", () => {
-				socket.emit("typing", message.name);
-			});
 	};
 
 	useEffect(() => {
@@ -27,12 +23,17 @@ const ChatWindow = () => {
 		socket.on("disconnect", () => {
 			console.log("user has disconnected");
 		});
+
+		socket.on("typing", (data) => {
+			sethandle(data);
+		});
 	}, []);
 
 	useEffect(() => {
 		socket.on("chat", (data) => {
 			setnewMessage((arr) => [...arr, data]);
 		});
+		sethandle(null);
 	}, []);
 
 	const sendMessage = (e) => {
@@ -42,6 +43,11 @@ const ChatWindow = () => {
 			message: message.message,
 			handle: message.handle,
 		});
+		sethandle(null);
+	};
+
+	const handleKey = () => {
+		message && socket.emit("typing", message.handle);
 	};
 
 	return (
@@ -55,7 +61,13 @@ const ChatWindow = () => {
 							</p>
 						))}
 					</div>
-					<div id="feedback"></div>
+					<div id="feedback">
+						{handle ? (
+							<p>
+								<em>{handle} is typing a message...</em>
+							</p>
+						) : null}
+					</div>
 				</div>
 				<input
 					onChange={onChange}
@@ -66,6 +78,7 @@ const ChatWindow = () => {
 				/>
 				<input
 					onChange={onChange}
+					onKeyPress={handleKey}
 					id="message"
 					name="message"
 					type="text"
