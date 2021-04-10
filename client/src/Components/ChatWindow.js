@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import socketIOClient from "socket.io-client";
 // const ENDPOINT = "http://localhost:5000";
-const heroku = io.connect(window.location.hostname);
+const heroku = "/";
 
 const socket = socketIOClient(heroku, {
 	transports: ["websocket"],
