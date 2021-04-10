@@ -31,9 +31,9 @@ const ChatWindow = () => {
 
 	useEffect(() => {
 		socket.on("chat", (data) => {
+			sethandle(null);
 			setnewMessage((arr) => [...arr, data]);
 		});
-		sethandle(null);
 	}, []);
 
 	const sendMessage = (e) => {
